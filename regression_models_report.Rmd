@@ -3,7 +3,7 @@ title: "Regression Models Report"
 author: "Juan Navarro"
 date: "Sunday, March 22, 2015"
 output:
-  pdf_document:
+  pdf_document: 
     keep_tex: yes
   html_document: default
 ---
