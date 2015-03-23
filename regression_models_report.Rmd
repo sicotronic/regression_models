@@ -1,0 +1,121 @@
+---
+title: "Regression Models Report"
+author: "Juan Navarro"
+date: "Sunday, March 22, 2015"
+output:
+  pdf_document:
+    keep_tex: yes
+  html_document: default
+---
+
+Miles per Gallon and How Tranmission Affects It
+===============================================
+
+Executive Summary
+=================
+This is a report for the Regression Models assignment project of the Coursera Data Science Specialization. It is required in this project to analyze the mtcars dataset provided by R and explore the relationship between its variables and the mpg variable (miles per gallon) of the cars.
+
+The goal is to be able to answer the following questions:
+
+Is an automatic or manual transmission better for MPG?
+
+Can we quantify how different the MPG is between the transmission types?
+
+The main results of this analysis are that:
+A better value of the miles per gallon variable (mpg) are found with manual transmissions. 
+There is an aproximated increase of 1.8 MPG when switching from an automatic transmission to a manual one.
+
+Data Processing
+===============
+We begin by loading in the mtcars dataset and transforming certain variables into factors.
+
+```{r}
+data(mtcars)
+mtcars$am <- factor(mtcars$am,labels=c("Automatic","Manual"))
+mtcars$gear <- factor(mtcars$gear)
+mtcars$cyl <- factor(mtcars$cyl)
+mtcars$vs <- factor(mtcars$vs)
+mtcars$carb <- factor(mtcars$carb)
+```
+
+##Exploratory Analysis
+======================
+
+At first, in order to understand the data, I simply took a look at the relationships between the many variables present in the dataset. Making a set of scatterplots comparing each pair of variables as in the following graph.
+
+```{r}
+pairs(mpg ~ ., data = mtcars)
+```
+
+It is possible to observe that many variables, such as cyl, disp, wt, hp, drat, vs, am, and carb, have correlations with mpg. Therefore I must consider this variables for the fitting of the linear model too.
+
+The relationship of interest for this analysis is between the am factor variable and mpg. I must look at the distribution of mpg for each of the two levels of am. This can be more easily seen in the following boxplot. It is clear that manual transmissions tend to have higher MPG.
+
+```{r}
+boxplot(mpg ~ am, data = mtcars, col = (c("green","red")), ylab = "Miles Per Gallon (mpg)", xlab = "Transmission Type (am)")
+```
+
+Regression Analysis
+===================
+
+In first place, using all the variables to predict mpg I fit a lineal model and then I will try to choose the most significant predictors for the definitive model. 
+The step function performs this selection by calling lm several times. The best variables are selected to be used in predicting mpg with the Akaike information criterion that implements both forward selection and backward elimination. 
+By this I can be sure that I have included the most relevant variables and not included those unrelated ones that do not contribute significantly to predicting the variable of interest.
+
+```{r }
+initial_model <- lm(mpg ~ ., data = mtcars)
+best_model <- step(initial_model, direction = "both")
+```
+
+From the best model we see that in addition to am, also the following variables are strongly related wt, hp, cyl and therefore useful in predicting mpg.
+
+
+```{r}
+summary(best_model)
+```
+
+
+Comparing this best model that includes all the relevant variables and the initial simple model that uses only am (the transmission type) as a predictor for mpg, it is possible to observe that the p-value of the best model is very low, and therefore I can reject the null hypothesis that these variables do not contribute to the model fit. Anyway, the p-value for the simple model, is very high (in comparison with the best model) and therefore I cannot reject the null hypothesis that the additional variables it includes are not related enough. 
+
+
+```{r}
+simple_model <- lm(mpg ~ am, data = mtcars)
+anova(simple_model,best_model,initial_model)
+```
+
+Model Evaluation
+=================
+Analyzing the Residuals vs Fitted plot it is possible to observe that the residuals are randomly scattered and verifying this way, the independece condition. If there is any pattern would present, it would indicate underfitting of the model. 
+In Normal Q-Q plot it is possible to read that the residuals are approximately normally distributed. 
+
+The data points with the most leverage in the fit can be found by looking at the hatvalues(). Those that influence the model coefficients the most are given by the dfbetas() function.
+
+```{r}
+par(mfrow=c(2, 2))
+plot(best_model)
+```
+
+
+Statstical Inference
+====================
+Finally I performed a t-test on the two subsets of mpg data: manual and automatic transmissions. It is assumed for this test that both are normally distributed and tests the null hypothesis that they come from the same distribution. This performs a two-sided test with α=0.05 and assuming unequal variances. The t-test results as shown allow us to reject the null hypothesis that the mpg distributions for manual and automatic transmissions are the same.
+
+```{r}
+t.test(mpg ~ am, data = mtcars)
+```
+
+Conclusions
+===========
+After perfoming several model fits to find the best model I showed that the selected model was better than a simple model (using only am to predict mpg) and at the same time it does not include unnecessary variables in the fit. 
+The folling can be concluded:
+
+There is a decrease of aproximately 0.32 in MPG for every increase of 10 in horsepower.
+
+MPG also decreases near 2.5 for every 1000 lb increase in the weight of the vehicle.
+
+MPG will decrease by 3.0 or 2.2 When the number of cylinders increases from 4 to 6 or 8 respectively. 
+
+Manual transmissions get 1.8 more MPG than automatic cars. 
+This is considering also horsepower, the weight and the number of cylinders of the car
+
+
