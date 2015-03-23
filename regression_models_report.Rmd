@@ -3,7 +3,8 @@ title: "Regression Models Report"
 author: "Juan Navarro"
 date: "Sunday, March 22, 2015"
 output:
-  pdf_document: 
+  word_document: default
+  pdf_document:
     keep_tex: yes
   html_document: default
 ---
@@ -38,8 +39,8 @@ mtcars$vs <- factor(mtcars$vs)
 mtcars$carb <- factor(mtcars$carb)
 ```
 
-##Exploratory Analysis
-======================
+Exploratory Analysis
+====================
 
 At first, in order to understand the data, I simply took a look at the relationships between the many variables present in the dataset. Making a set of scatterplots comparing each pair of variables as in the following graph.
 
